@@ -6,17 +6,18 @@
  */
 
 import React from 'react';
-import { Camera, CameraType } from 'react-native-camera-kit';
-import {StyleSheet,Alert} from 'react-native'
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import Scan from './components/scan.js'
+
 function App() {
+  const Stack = createNativeStackNavigator();
   return (
-    <Camera
-      cameraType={CameraType.Back} // front/back(default)
-      style={StyleSheet.absoluteFill}
-      flashMode='auto'
-      scanBarcode={true}
-      onReadCode={(event) => console.log(event.nativeEvent.codeStringValue)}
-    />
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen name="Scan" component={Scan} />
+      </Stack.Navigator>
+    </NavigationContainer>
   )
 }
 
