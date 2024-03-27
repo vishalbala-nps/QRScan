@@ -10,9 +10,13 @@ import { Camera, CameraType } from 'react-native-camera-kit';
 import {View,ToastAndroid} from 'react-native'
 import Modal from "react-native-modal";
 import {Card,Text} from 'react-native-paper'
+import Sound from 'react-native-sound';
 
 function Scan(props) {
   const [mod,setmod] = React.useState({visible:false,title:"",description:"",valid:true})
+  React.useEffect(function() {
+    Sound.setCategory("Playback")
+  },[])
   return (
     <>
     <Modal isVisible={mod.visible} onBackdropPress={function() {
@@ -40,8 +44,14 @@ function Scan(props) {
               return i["id"] == event.nativeEvent.codeStringValue
             })
             if (k !== undefined) {
+              let right = new Sound("right.mp3",Sound.MAIN_BUNDLE,function() {
+                right.play()
+              })
               setmod({visible:true,title:k["title"],description:k["description"],valid:true})
             } else {
+              let wrong = new Sound("wrong.mp3",Sound.MAIN_BUNDLE,function() {
+                wrong.play()
+              })
               setmod({visible:true,title:"Invalid QR Code!",description:"This QR Code is Invalid!",valid:false})
             }
           }
