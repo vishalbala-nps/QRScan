@@ -7,7 +7,7 @@
 
 import React from 'react';
 import { Camera, CameraType } from 'react-native-camera-kit';
-import {View,ToastAndroid} from 'react-native'
+import {View,Vibration} from 'react-native'
 import Modal from "react-native-modal";
 import {Card,Text} from 'react-native-paper'
 import Sound from 'react-native-sound';
@@ -43,6 +43,7 @@ function Scan(props) {
             let k = props.cf.find(function(i) {
               return i["id"] == event.nativeEvent.codeStringValue
             })
+            Vibration.vibrate()
             if (k !== undefined) {
               if (k["valid"]) {
                 let right = new Sound("right.mp3",Sound.MAIN_BUNDLE,function() {
