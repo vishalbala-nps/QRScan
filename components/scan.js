@@ -12,7 +12,7 @@ import Modal from "react-native-modal";
 import {Card,Text} from 'react-native-paper'
 import Sound from 'react-native-sound';
 import {request, check, PERMISSIONS, RESULTS} from 'react-native-permissions';
-
+import Icon from 'react-native-vector-icons/MaterialIcons'
 function Scan(props) {
   const [mod,setmod] = React.useState({visible:false,title:"",description:"",valid:true})
   const [grant,setgrant] = React.useState(false)
@@ -32,6 +32,13 @@ function Scan(props) {
       }
     })
   },[])
+  function HintIcon(props) {
+    if (props.ic) {
+      return <Icon name="lightbulb" size={40} color="orange" />
+    } else {
+      return <Icon name="close" size={40} color="red" />
+    }
+  }
   if (grant) {
     return (
       <>
@@ -41,9 +48,12 @@ function Scan(props) {
             <View>
               <Card>
                   <Text />
-                  <Text variant="titleLarge" style={{textAlign:"center"}}>  {mod.title}</Text>
+                  <View style={{alignItems:"center"}}>
+                    <HintIcon ic={mod.valid} />
+                  </View>
+                  <Text variant="titleLarge" style={{textAlign:"center"}}>{mod.title}</Text>
                   <Text />
-                  <Text variant="bodyLarge" style={{textAlign:"center"}}>  {mod.description}</Text>
+                  <Text variant="bodyLarge" style={{textAlign:"center"}}>{mod.description}</Text>
                   <Text />
               </Card>
             </View>
