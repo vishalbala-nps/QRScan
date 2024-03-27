@@ -7,16 +7,16 @@
 
 import React from 'react';
 import { Camera, CameraType } from 'react-native-camera-kit';
-import {StyleSheet,View} from 'react-native'
+import {View,ToastAndroid} from 'react-native'
 import Modal from "react-native-modal";
-import {Button, Card,List,Text} from 'react-native-paper'
+import {Card,Text} from 'react-native-paper'
 
-function Scan({ navigation }) {
-  const [mod,setmod] = React.useState({visible:false,title:"",description:""})
+function Scan(props) {
+  const [mod,setmod] = React.useState({visible:false,title:"",description:"",valid:true})
   return (
     <>
     <Modal isVisible={mod.visible} onBackdropPress={function() {
-      setmod({visible:false,title:"",description:""})
+      setmod({visible:false,title:"",description:"",valid:true})
     }} useNativeDriver={true}>
         <View>
           <Card>
@@ -36,7 +36,14 @@ function Scan({ navigation }) {
         scanBarcode={true}
         onReadCode={function(event) {
           if (mod.visible == false) {
-            setmod({visible:true,title:"abc",description:event.nativeEvent.codeStringValue})
+            let k = props.cf.find(function(i) {
+              return i["id"] == event.nativeEvent.codeStringValue
+            })
+            if (k !== undefined) {
+              setmod({visible:true,title:k["title"],description:k["description"],valid:true})
+            } else {
+              setmod({visible:true,title:"Invalid QR Code!",description:"This QR Code is Invalid!",valid:false})
+            }
           }
         }}
       />
