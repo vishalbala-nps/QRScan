@@ -44,10 +44,16 @@ function Scan(props) {
               return i["id"] == event.nativeEvent.codeStringValue
             })
             if (k !== undefined) {
-              let right = new Sound("right.mp3",Sound.MAIN_BUNDLE,function() {
-                right.play()
-              })
-              setmod({visible:true,title:k["title"],description:k["description"],valid:true})
+              if (k["valid"]) {
+                let right = new Sound("right.mp3",Sound.MAIN_BUNDLE,function() {
+                  right.play()
+                })
+              } else {
+                let wrong = new Sound("wrong.mp3",Sound.MAIN_BUNDLE,function() {
+                  wrong.play()
+                })
+              }
+              setmod({visible:true,title:k["title"],description:k["description"],valid:k["valid"]})
             } else {
               let wrong = new Sound("wrong.mp3",Sound.MAIN_BUNDLE,function() {
                 wrong.play()
