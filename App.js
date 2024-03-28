@@ -14,7 +14,7 @@ import * as ScopedStorage from "react-native-scoped-storage"
 import { ToastAndroid,Text,Alert } from 'react-native'
 import { IconButton } from 'react-native-paper';
 import RNBiometrics from "react-native-simple-biometrics";
-import {Linking,BackHandler} from 'react-native';
+import {Linking,StatusBar} from 'react-native';
 import RNExitApp from 'react-native-exit-app';
 
 function App() {
@@ -23,6 +23,7 @@ function App() {
     const [ld,setld] = React.useState({ld:true,cfg:{}})
     
     React.useEffect(function() {
+      StatusBar.setHidden(true);
       function openFiles() {
         ScopedStorage.openDocumentTree(true).then(function(r) {
           ScopedStorage.readFile(r.uri.concat("%2Fhints.json")).then(function(f) {
