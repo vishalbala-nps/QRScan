@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import { Link, NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Scan from './components/scan.js'
 import AsyncStorage from '@react-native-async-storage/async-storage';
