@@ -6,12 +6,17 @@
  */
 
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { Link, NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Scan from './components/scan.js'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ScopedStorage from "react-native-scoped-storage"
-import { ToastAndroid,Text } from 'react-native'
+import { ToastAndroid,Text,Alert } from 'react-native'
+import { IconButton } from 'react-native-paper';
+import RNBiometrics from "react-native-simple-biometrics";
+import {Linking,BackHandler} from 'react-native';
+import RNExitApp from 'react-native-exit-app';
+
 function App() {
   const Stack = createNativeStackNavigator();
   function ScUI() {
@@ -20,13 +25,11 @@ function App() {
     React.useEffect(function() {
       function openFiles() {
         ScopedStorage.openDocumentTree(true).then(function(r) {
-          console.log(r.uri)
           ScopedStorage.readFile(r.uri.concat("%2Fhints.json")).then(function(f) {
             AsyncStorage.setItem("@config",r.uri.concat("%2Fhints.json")).then(function() {
               setConfig(JSON.parse(f))
             })
           }).catch(function(e) {
-            console.log(e)
             ToastAndroid.show('hints.json missing!', ToastAndroid.SHORT);
             openFiles()
           })
@@ -39,7 +42,6 @@ function App() {
         if (res === null) {
           openFiles()
         } else {
-          console.log("Asynckey")
           ScopedStorage.readFile(res).then(function(f) {
             setConfig(JSON.parse(f))
           }).catch(function(e) {
@@ -58,7 +60,42 @@ function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen name="Scan" component={ScUI} />
+        <Stack.Screen name="Scan" component={ScUI} options={{
+          headerRight: function() {
+            return (
+              <IconButton
+                icon="cog"
+                size={20}
+                onPress={() => RNBiometrics.requestBioAuth("Enter Device Pin", "Enter Device Pin to access settings").then(function() {
+                  Alert.alert('Settings', 'Please select a setting',[
+                    {
+                      "text":"Open AppInfo",
+                      onPress:function() {
+                        Linking.openSettings()
+                      }
+                    },
+                    {
+                      "text":"Close App",
+                      onPress: function() {
+                        RNExitApp.exitApp();
+                      }
+                    },
+                    {
+                      "text":"Clear Hints and close",
+                      onPress: function() {
+                        AsyncStorage.clear().then(function() {
+                          RNExitApp.exitApp();
+                        })
+                      }
+                    }
+                  ])
+                }).catch(function(e) {
+                  ToastAndroid.show('Device either has no lock code or Auth cancel', ToastAndroid.SHORT);
+                })}
+              />
+            )
+          }
+        }} />
       </Stack.Navigator>
     </NavigationContainer>
   )
