@@ -73,6 +73,7 @@ function App() {
                       "text":"Open AppInfo",
                       onPress:function() {
                         Linking.openSettings()
+                        RNExitApp.exitApp()
                       }
                     },
                     {
