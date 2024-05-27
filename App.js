@@ -56,17 +56,16 @@ function App() {
                     axios.get("http://"+txt.current).then(function(res) {
                       tp.current = txt.current
                       setlst(res.data)
-                    }).catch(function() {
+                    }).catch(function(e) {
                       ToastAndroid.show('Failed to load list of hints!', ToastAndroid.SHORT);
                     })
                   }}>Fetch Hints</Button>
                   <Text />
                   <FlatList data={lst} renderItem={function(it) {
-                    console.log(it.item.name)
                     return <List.Item title={it.item.name} onPress={function() {
                       axios.get("http://"+tp.current+"/"+it.item.name).then(function(res) {
                         setConfig(res.data)
-                      }).catch(function() {
+                      }).catch(function(e) {
                         ToastAndroid.show('Failed to load hint!', ToastAndroid.SHORT);
                       })
                     }}/>
