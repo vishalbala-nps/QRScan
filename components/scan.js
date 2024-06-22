@@ -7,12 +7,13 @@
 
 import React from 'react';
 import { Camera, CameraType } from 'react-native-camera-kit';
-import {View,Vibration} from 'react-native'
+import {View,Vibration,ToastAndroid} from 'react-native'
 import Modal from "react-native-modal";
 import {Card,Text} from 'react-native-paper'
 import Sound from 'react-native-sound';
 import {request, check, PERMISSIONS, RESULTS} from 'react-native-permissions';
 import Icon from 'react-native-vector-icons/MaterialIcons'
+import axios from 'axios';
 function Scan(props) {
   const [mod,setmod] = React.useState({visible:false,title:"",description:"",valid:true})
   const [grant,setgrant] = React.useState(false)
@@ -69,7 +70,12 @@ function Scan(props) {
                 let k = props.cf.find(function(i) {
                   return i["id"] == event.nativeEvent.codeStringValue
                 })
-                Vibration.vibrate()
+                axios.post("http://"+props.url+"/inventory/addhint",{},{params:{room:props.room,title:k["title"],hint:k["description"]}}).then(function() {
+                  Vibration.vibrate()
+                  ToastAndroid.show('Added to inventory!', ToastAndroid.SHORT);
+                }).catch(function(e) {
+                  alert("Failed to add to inventory! Please try scanning again")
+                })
                 if (k !== undefined) {
                   if (k["valid"]) {
                     let right = new Sound("right.mp3",Sound.MAIN_BUNDLE,function() {

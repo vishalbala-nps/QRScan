@@ -19,21 +19,13 @@ function App() {
   const Stack = createNativeStackNavigator();
   const txt = React.useRef()
   const tp = React.useRef()
+  const rtxt = React.useRef()
   function ScUI() {
-    const [ld,setld] = React.useState({ld:true,cfg:{}})
+    const [ld,setld] = React.useState({ld:true,cfg:{},room:""})
     const [mod,setmod] = React.useState(false)
     const [lst,setlst] = React.useState([])
-    function openFiles() {
-      ScopedStorage.openDocumentTree(true).then(function(r) {
-        ScopedStorage.readFile(r.uri.concat("%2Fhints.json")).then(function(f) {
-          setConfig(JSON.parse(f))
-        }).catch(function(e) {
-          ToastAndroid.show('hints.json missing!', ToastAndroid.SHORT);
-        })
-      })
-    }
     function setConfig(loc) {
-      setld({ld:false,cfg:loc}) 
+      setld({ld:false,cfg:loc,room:rtxt.current}) 
     }
     React.useEffect(function() {
       StatusBar.setHidden(true);
@@ -52,8 +44,12 @@ function App() {
                   <TextInput label="Enter URL" onChangeText={function(r) {
                     txt.current = r
                   }}/>
+                  <Text />
+                  <TextInput label="Enter Room" onChangeText={function(r) {
+                    rtxt.current = r
+                  }}/>
                   <Button onPress={function() {
-                    axios.get("http://"+txt.current).then(function(res) {
+                    axios.get("http://"+txt.current+"/hints").then(function(res) {
                       tp.current = txt.current
                       setlst(res.data)
                     }).catch(function(e) {
@@ -63,7 +59,8 @@ function App() {
                   <Text />
                   <FlatList data={lst} renderItem={function(it) {
                     return <List.Item title={it.item.name} onPress={function() {
-                      axios.get("http://"+tp.current+"/"+it.item.name).then(function(res) {
+                      console.log()
+                      axios.get("http://"+tp.current+"/hints/"+it.item.name).then(function(res) {
                         setConfig(res.data)
                       }).catch(function(e) {
                         ToastAndroid.show('Failed to load hint!', ToastAndroid.SHORT);
@@ -79,13 +76,10 @@ function App() {
           <Button mode="contained" onPress={function() {
             setmod(true)
           }}>Download Hint</Button>
-          <Text />
-          <Button mode="contained" onPress={openFiles}>Use Stored Hint</Button>
-          <Text />
         </>
       )
     } else {
-      return <Scan cf={ld.cfg} /> 
+      return <Scan cf={ld.cfg} room={ld.room} url={tp.current} /> 
     }
   }
   return (
