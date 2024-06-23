@@ -9,7 +9,6 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Scan from './components/scan.js'
-import * as ScopedStorage from "react-native-scoped-storage"
 import { ToastAndroid,View,FlatList } from 'react-native'
 import {StatusBar} from 'react-native';
 import { Button,Card,TextInput,Text,List } from 'react-native-paper'
