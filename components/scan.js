@@ -17,6 +17,7 @@ import axios from 'axios';
 function Scan(props) {
   const [mod,setmod] = React.useState({visible:false,title:"",description:"",valid:true})
   const [grant,setgrant] = React.useState(false)
+  const scanned = React.useRef([])
   React.useEffect(function() {
     Sound.setCategory("Playback")
     check(PERMISSIONS.ANDROID.CAMERA).then(function(res) {
@@ -70,37 +71,33 @@ function Scan(props) {
                 let k = props.cf.find(function(i) {
                   return i["id"] == event.nativeEvent.codeStringValue
                 })
-                console.log(props.room)
                 if (k !== undefined) {
-                  axios.post("http://"+props.url+"/inventory/addhint",{},{params:{room:props.room,title:k["title"],hint:k["description"]}}).then(function() {
-                    Vibration.vibrate()
-                    ToastAndroid.show('Added to inventory!', ToastAndroid.SHORT);
-                  }).catch(function(e) {
-                    if (e.response.status === 404) {
-                      alert("The game is yet to start! Please start the game and scan again")
-                    } else {
-                      alert("Failed to add to inventory! Please try scanning again")
-                      console.log(e)
-                      console.log(e.response.status)
-                    }
-                  })
-                  if (k !== undefined) {
-                    if (k["valid"]) {
-                      let right = new Sound("right.mp3",Sound.MAIN_BUNDLE,function() {
-                        right.play()
-                      })
-                    } else {
-                      let wrong = new Sound("wrong.mp3",Sound.MAIN_BUNDLE,function() {
-                        wrong.play()
-                      })
-                    }
-                    setmod({visible:true,title:k["title"],description:k["description"],valid:k["valid"]})
+                  if (scanned.current.includes(parseInt(k.id)) !== true) {
+                    console.log("call api")
+                    axios.post("http://"+props.url+"/inventory/addhint",{},{params:{room:props.room,title:k["title"],hint:k["description"]}}).then(function() {
+                      Vibration.vibrate()
+                      ToastAndroid.show('Added to inventory!', ToastAndroid.SHORT);
+                      scanned.current.push(parseInt(k.id))
+                    }).catch(function(e) {
+                      if (e.response.status === 404) {
+                        alert("The game is yet to start! Please start the game and scan again")
+                      } else {
+                        alert("Failed to add to inventory! Please try scanning again")
+                        console.log(e)
+                        console.log(e.response.status)
+                      }
+                    })
+                  }
+                  if (k["valid"]) {
+                    let right = new Sound("right.mp3",Sound.MAIN_BUNDLE,function() {
+                      right.play()
+                    })
                   } else {
                     let wrong = new Sound("wrong.mp3",Sound.MAIN_BUNDLE,function() {
                       wrong.play()
                     })
-                    setmod({visible:true,title:"Invalid QR Code!",description:"This QR Code is Invalid!",valid:false})
                   }
+                    setmod({visible:true,title:k["title"],description:k["description"],valid:k["valid"]})
                 }
               }
             }}
