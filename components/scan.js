@@ -72,12 +72,12 @@ function Scan(props) {
                   return i["id"] == event.nativeEvent.codeStringValue
                 })
                 if (k !== undefined) {
-                  if (scanned.current.includes(parseInt(k.id)) !== true) {
+                  if (scanned.current.includes(k.id) !== true) {
                     console.log("call api")
                     axios.post("http://"+props.url+"/inventory/addhint",{},{params:{room:props.room,title:k["title"],hint:k["description"]}}).then(function() {
                       Vibration.vibrate()
                       ToastAndroid.show('Added to inventory!', ToastAndroid.SHORT);
-                      scanned.current.push(parseInt(k.id))
+                      scanned.current.push(k.id)
                     }).catch(function(e) {
                       if (e.response.status === 404) {
                         alert("The game is yet to start! Please start the game and scan again")
