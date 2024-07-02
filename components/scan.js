@@ -9,14 +9,39 @@ import React from 'react';
 import { Camera, CameraType } from 'react-native-camera-kit';
 import {View,Vibration,ToastAndroid} from 'react-native'
 import Modal from "react-native-modal";
-import {Card,Text} from 'react-native-paper'
+import {Button, Card,Text} from 'react-native-paper'
 import Sound from 'react-native-sound';
 import {request, check, PERMISSIONS, RESULTS} from 'react-native-permissions';
 import Icon from 'react-native-vector-icons/MaterialIcons'
 import axios from 'axios';
 function Scan(props) {
   const [mod,setmod] = React.useState({visible:false,title:"",description:"",valid:true})
-  const [grant,setgrant] = React.useState(false)
+  const [grant,setgrant] = React.useState({granted:false,showcam:false})
+  const [data,setdata] = React.useReducer(function(state,action) {
+    let cstate = {...state}
+    if (action.type === "grant") {
+      cstate.permission = true
+      cstate.showcam = true
+    } else if (action.type === "deny") {
+      cstate.permission = false
+    } else if (action.type === "showcam") {
+      cstate.showcam = true
+    } else if (action.type === "hidecam") {
+      cstate.showcam = false
+    } else if (action.type === "showdialog") {
+      cstate.dialog.visible = true
+      cstate.dialog.title = action.title
+      cstate.dialog.description = action.description
+      cstate.dialog.valid = action.valid
+    } else if (action.type === "hidedialog") {
+      cstate.dialog.visible = false
+      cstate.dialog.title = ""
+      cstate.dialog.description = ""
+      cstate.dialog.valid = true
+      cstate.showcam = false
+    }
+    return cstate
+  },{permission:false,showcam:false,dialog:{visible:false,title:"",description:"",valid:true}})
   const scanned = React.useRef([])
   React.useEffect(function() {
     Sound.setCategory("Playback")
@@ -24,13 +49,13 @@ function Scan(props) {
       if (res === RESULTS.UNAVAILABLE || res === RESULTS.DENIED || res === RESULTS.BLOCKED) {
         request(PERMISSIONS.ANDROID.CAMERA).then(function(r) {
           if (r === RESULTS.GRANTED) {
-            setgrant(true)
+            setdata({type:"grant"})
           } else {
-            setgrant(false)
+            setdata({type:"deny"})
           }
         })
       } else if (res === RESULTS.GRANTED) {
-        setgrant(true)
+        setdata({type:"grant"})
       }
     })
   },[])
@@ -41,21 +66,21 @@ function Scan(props) {
       return <Icon name="close" size={40} color="red" />
     }
   }
-  if (grant) {
+  if (data.permission && data.showcam) {
     return (
       <>
-        <Modal isVisible={mod.visible} onBackdropPress={function() {
-          setmod({visible:false,title:"",description:"",valid:true})
+        <Modal isVisible={data.dialog.visible} onBackdropPress={function() {
+          setdata({type:"hidedialog"})
         }} useNativeDriver={true}>
             <View>
               <Card>
                   <Text />
                   <View style={{alignItems:"center"}}>
-                    <HintIcon ic={mod.valid} />
+                    <HintIcon ic={data.dialog.valid} />
                   </View>
-                  <Text variant="titleLarge" style={{textAlign:"center"}}>{mod.title}</Text>
+                  <Text variant="titleLarge" style={{textAlign:"center"}}>{data.dialog.title}</Text>
                   <Text />
-                  <Text variant="bodyLarge" style={{textAlign:"center"}}>{mod.description}</Text>
+                  <Text variant="bodyLarge" style={{textAlign:"center"}}>{data.dialog.description}</Text>
                   <Text />
               </Card>
             </View>
@@ -67,7 +92,7 @@ function Scan(props) {
             flashMode='auto'
             scanBarcode={true}
             onReadCode={function(event) {
-              if (mod.visible == false) {
+              if (data.dialog.visible == false) {
                 let k = props.cf.find(function(i) {
                   return i["id"] == event.nativeEvent.codeStringValue
                 })
@@ -97,13 +122,17 @@ function Scan(props) {
                       wrong.play()
                     })
                   }
-                    setmod({visible:true,title:k["title"],description:k["description"],valid:k["valid"]})
+                  setdata({type:"showdialog",title:k["title"],description:k["description"],valid:k["valid"]})
                 }
               }
             }}
           />
       </>
     )
+  } else if (data.permission && data.showcam === false) {
+    return <Button onPress={function() {
+      setdata({type:"showcam"})
+    }}>Show Scanner</Button>
   } else {
     return <Text variant="titleLarge" style={{textAlign:"center"}}>Please Grant Camera Permission</Text>
   }
