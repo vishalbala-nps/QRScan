@@ -15,13 +15,11 @@ import {request, check, PERMISSIONS, RESULTS} from 'react-native-permissions';
 import Icon from 'react-native-vector-icons/MaterialIcons'
 import axios from 'axios';
 function Scan(props) {
-  const [mod,setmod] = React.useState({visible:false,title:"",description:"",valid:true})
-  const [grant,setgrant] = React.useState({granted:false,showcam:false})
   const [data,setdata] = React.useReducer(function(state,action) {
     let cstate = {...state}
     if (action.type === "grant") {
       cstate.permission = true
-      cstate.showcam = true
+      cstate.showcam = false
     } else if (action.type === "deny") {
       cstate.permission = false
     } else if (action.type === "showcam") {
